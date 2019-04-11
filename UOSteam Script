@@ -1,6 +1,10 @@
-getenemy 'friend' 'innocent' 'murderer' 'enemy' 'criminal' 'gray' 'closest'
+if not findalias 'snooptarget'
+  sysmsg "Choose target" 88
+  promptalias 'snooptarget'
+endif
 if not listexists 'bags'
   @createlist 'bags'
+  @pushlist 'bags' 0xe79
   @pushlist 'bags' 0xe76
   @pushlist 'bags' 0xe75
   @pushlist 'bags' 0xe74
@@ -8,7 +12,7 @@ if not listexists 'bags'
   @pushlist 'bags' 0xe7d
   @pushlist 'bags' 0xe77
 endif
-if @inrange 'enemy' 1 and @findlayer 'enemy' 21
+if @inrange 'snooptarget' 1 and @findlayer 'snooptarget' 21
   @setalias 'Enemypack' 'found'
   @pushlist 'bags' 'Enemypack'
 else
@@ -17,23 +21,35 @@ endif
 if @findalias 'Enemypack'
   //Snoop Found Pack
   useobject! 'Enemypack'
+  pause 1500
   for 0 to 'bags'
     //Snoop All Bags inside Pack
+    while @findtype bags[] 38 'Enemypack'
+      sysmsg 'Ignoring trapped pouch', 88
+      ignoreobject 'found'
+    endwhile
     while @findtype bags[] 'any' 'Enemypack'
-      pause 200
+      pause 1500
       @pushlist 'bags' 'found'
-      setalias 'inside' 'found'
+      @setalias 'inside' 'found'
       useobject! 'inside'
-      pause 600
+      pause 1500
       //Snoop 2nd Level of Bags
-      while @findtype containers[] 'any' 'inside'
-        pause 200
+      while @findtype bags[] 38 'inside'
+        sysmsg 'Ignoring trapped pouch', 88
+        ignoreobject 'found'
+      endwhile
+      while @findtype bags[] 'any' 'inside'
+        pause 1500
         @pushlist 'bags' 'found'
         useobject! 'found'
-        pause 400
+        pause 1500
         ignoreobject 'found'
       endwhile
       ignoreobject 'inside'
     endwhile
   endfor
-  @clearignorelist
+endif
+@clearignorelist
+@unsetalias 'snooptarget'
+@unsetalias 'Enemypack'
